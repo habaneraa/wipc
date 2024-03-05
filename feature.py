@@ -1,24 +1,12 @@
 """feature engineering for weibo interaction prediction"""
+from typing import Literal
 import re
 from tqdm import tqdm
 import pandas as pd
 import numpy as np
 
 
-def extract_features(dataset: pd.DataFrame, all_uid: list[str]) -> np.ndarray:
-
-    # 时间特征
-    def datetime_feature(dt):
-        t = (dt.hour * 3600 + dt.minute * 60 + dt.second) / 86400.0
-        w = (dt.day_of_week) / 7
-        # 把 day of week 和 time of day 表示在 R^2 单位圆上
-        return np.array([
-            np.cos(2 * np.pi * w), np.sin(2 * np.pi * w),
-            np.cos(2 * np.pi * t), np.sin(2 * np.pi * t),
-        ])
-    dataset['feature_datetime'] = dataset['time'].apply(datetime_feature)
-
-    # 用户特征
+def extract_user_feature(dataset: pd.DataFrame, all_uid: list[str]) -> dict[str, np.ndarray]:
     user_history = {u: list() for u in all_uid}
     for index, row in tqdm(dataset.iterrows(), desc='User Histories', total=len(dataset)):
         lfc = np.array([row['like_count'], row['forward_count'], row['comment_count']])
@@ -36,6 +24,23 @@ def extract_features(dataset: pd.DataFrame, all_uid: list[str]) -> np.ndarray:
                 np.amax(all_lfc, axis=0),
                 np.amin(all_lfc, axis=0)
             ]) # shape: (12,)
+    return user_features
+
+
+def extract_features(dataset: pd.DataFrame, user_features: dict[str, np.ndarray]) -> np.ndarray:
+
+    # 时间特征
+    def datetime_feature(dt):
+        t = (dt.hour * 3600 + dt.minute * 60 + dt.second) / 86400.0
+        w = (dt.day_of_week) / 7
+        # 把 day of week 和 time of day 表示在 R^2 单位圆上
+        return np.array([
+            np.cos(2 * np.pi * w), np.sin(2 * np.pi * w),
+            np.cos(2 * np.pi * t), np.sin(2 * np.pi * t),
+        ])
+    dataset['feature_datetime'] = dataset['time'].apply(datetime_feature)
+
+    # 用户特征
     dataset['feature_user'] = dataset['uid'].apply(lambda u: user_features[u])
 
     # 内容特征

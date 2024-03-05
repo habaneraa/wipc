@@ -22,7 +22,7 @@ def log_scale_interactions(df: pd.DataFrame):
         df[col] = df[col].map(lambda x: np.log(x + 1))
 
 
-def main():
+def process_dataset():
     train_raw = pd.read_table('./data/raw/weibo_train_data.txt', 
                             names=col_names_train, 
                             quotechar=None, quoting=csv.QUOTE_NONE)
@@ -45,8 +45,10 @@ def main():
     train_raw = train_raw[train_raw['time'] < split_time]
 
     with open(dataset_path, 'wb') as f:
-        pickle.dump({'train': train_raw, 'valid': valid_raw, 'test': test_raw, 'all_uid': all_users}, f)
+        pickle.dump(
+            {'train': train_raw, 'valid': valid_raw, 'test': test_raw, 'all_uid': all_users}, 
+            f)
 
 
 if __name__ == '__main__':
-    main()
+    process_dataset()

@@ -1,3 +1,4 @@
+from typing import Literal
 import pandas as pd
 import numpy as np
 import csv
@@ -7,7 +8,6 @@ from tqdm import tqdm
 
 col_names_train = ['uid', 'mid', 'time', 'forward_count', 'comment_count', 'like_count', 'content']
 col_names_predict = ['uid', 'mid', 'time', 'content']
-output_columns = ['like_count', 'forward_count', 'comment_count']
 dataset_path = './data/processed.pkl'
 
 
@@ -17,12 +17,7 @@ def load_dataset():
     return data
 
 
-def log_scale_interactions(df: pd.DataFrame):
-    for col in output_columns:
-        df[col] = df[col].map(lambda x: np.log(x + 1))
-
-
-def process_dataset():
+def process_dataset() -> None:
     train_raw = pd.read_table('./data/raw/weibo_train_data.txt', 
                             names=col_names_train, 
                             quotechar=None, quoting=csv.QUOTE_NONE)
@@ -48,6 +43,20 @@ def process_dataset():
         pickle.dump(
             {'train': train_raw, 'valid': valid_raw, 'test': test_raw, 'all_uid': all_users}, 
             f)
+    print(f'Saved to {dataset_path}.')
+
+
+scale_type = Literal['linear', 'log']
+target_columns = ['like_count', 'forward_count', 'comment_count']
+
+def extract_targets(df: pd.DataFrame, scale: scale_type='linear') -> np.ndarray:
+    if scale == 'linear':
+        targets = [df[col].to_numpy(dtype=np.float32) for col in target_columns]
+    elif scale == 'log':
+        targets = [np.log( df[col].to_numpy(dtype=np.float32) + 1 ) for col in target_columns]
+    else:
+        raise ValueError(f'Invalid argument: scale = {scale}')
+    return np.column_stack(targets)
 
 
 if __name__ == '__main__':

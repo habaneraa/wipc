@@ -1,5 +1,5 @@
 from sentence_transformers import SentenceTransformer
-from preprocess import process_text, save_compressed, load_compressed
+from ..data.utils import process_text, save_compressed, load_compressed
 
 model = SentenceTransformer('infgrad/stella-base-zh-v2')
 total_params = sum(p.numel() for p in model.parameters())

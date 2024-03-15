@@ -1,5 +1,4 @@
 """feature engineering for weibo interaction prediction"""
-from typing import Literal
 import re
 from tqdm import tqdm
 import pandas as pd
@@ -15,9 +14,8 @@ def extract_user_feature(dataset: pd.DataFrame, all_uid: list[str]) -> dict[str,
     user_features = {}
     for u, history in user_history.items():
         if not history:
-            user_features[u] = np.zeros((12,), dtype=np.float32)
+            user_features[u] = np.zeros((15,), dtype=np.float32)
         else:
-            # all_lfc = np.stack(history, axis=0)
             all_lfc = np.stack(history, axis=0)
             # 计算平均值、总和、最大值、最小值、标准差
             mean_features = np.mean(all_lfc, axis=0)
@@ -28,7 +26,7 @@ def extract_user_feature(dataset: pd.DataFrame, all_uid: list[str]) -> dict[str,
             # 将所有统计量拼接成一个特征向量
             user_features[u] = np.concatenate([
                 mean_features, sum_features, max_features, min_features, std_features
-            ], axis=0)  # shape: (15,)
+            ], axis=0)
     return user_features
 
 
@@ -55,14 +53,14 @@ def extract_features(dataset: pd.DataFrame, user_features: dict[str, np.ndarray]
     keywords = ["http", "红包", "分享", "打车", "cn", "微博", "##", "@", "【", "代金卷", "2015"]
 
     def content_feature(content):
-        content_features = np.array([int(keyword in content) for keyword in keywords], dtype=np.float32)
-        feature = np.array([
+        return np.array([
             1 if topic_pattern.findall(content) else 0,
             1 if '@' in content else 0,
             1 if reference_pattern.findall(content) else 0,
             1 if url_pattern.findall(content) else 0,
+        ] + [
+            int(keyword in content) for keyword in keywords
         ], dtype=np.float32)
-        return np.concatenate(content_features, feature, axis=1)
     dataset['feature_content'] = dataset['content'].apply(content_feature)
     # 文本特征
 

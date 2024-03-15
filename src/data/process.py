@@ -27,5 +27,6 @@ def extract_targets(df: pd.DataFrame, scale: scale_type='linear') -> np.ndarray:
     return np.column_stack(targets)
 
 
-def get_user_history_sequence(df):
-    return {uid: group.sort_values(by='time') for uid, group in df.groupby('uid')}
+# 计算指标时恢复对数并取整
+def exp_targets(x: np.ndarray) -> np.ndarray:
+    return np.rint(np.exp(x) - 1).astype(int)

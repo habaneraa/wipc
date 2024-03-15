@@ -17,13 +17,18 @@ def extract_user_feature(dataset: pd.DataFrame, all_uid: list[str]) -> dict[str,
         if not history:
             user_features[u] = np.zeros((12,), dtype=np.float32)
         else:
+            # all_lfc = np.stack(history, axis=0)
             all_lfc = np.stack(history, axis=0)
+            # 计算平均值、总和、最大值、最小值、标准差
+            mean_features = np.mean(all_lfc, axis=0)
+            sum_features = np.sum(all_lfc, axis=0)
+            max_features = np.amax(all_lfc, axis=0)
+            min_features = np.amin(all_lfc, axis=0)
+            std_features = np.std(all_lfc, axis=0)
+            # 将所有统计量拼接成一个特征向量
             user_features[u] = np.concatenate([
-                np.mean(all_lfc, axis=0),
-                np.std(all_lfc, axis=0),
-                np.amax(all_lfc, axis=0),
-                np.amin(all_lfc, axis=0)
-            ]) # shape: (12,)
+                mean_features, sum_features, max_features, min_features, std_features
+            ], axis=0)  # shape: (15,)
     return user_features
 
 
@@ -47,20 +52,24 @@ def extract_features(dataset: pd.DataFrame, user_features: dict[str, np.ndarray]
     topic_pattern = re.compile(r'#.+#')
     reference_pattern = re.compile(r'【.+】')
     url_pattern = re.compile(r'[a-zA-z]+://[^\s]*')
+    keywords = ["http", "红包", "分享", "打车", "cn", "微博", "##", "@", "【", "代金卷", "2015"]
+
     def content_feature(content):
-        return np.array([
+        content_features = np.array([int(keyword in content) for keyword in keywords], dtype=np.float32)
+        feature = np.array([
             1 if topic_pattern.findall(content) else 0,
             1 if '@' in content else 0,
             1 if reference_pattern.findall(content) else 0,
             1 if url_pattern.findall(content) else 0,
         ], dtype=np.float32)
+        return np.concatenate(content_features, feature, axis=1)
     dataset['feature_content'] = dataset['content'].apply(content_feature)
-
     # 文本特征
 
     # 输出特征可以用 feature_columns 控制
     # 拼接 array (num_samples, feature_dim)
     feature_columns = ['feature_datetime', 'feature_user', 'feature_content']
+
     feature_array = []
     for col in feature_columns:
         feature_array.append(np.stack(dataset[col]))

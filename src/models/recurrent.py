@@ -24,7 +24,10 @@ class RNN(nn.Module):
         self.hidden_size = hidden_size # 隐藏维数
         self.predict_size = 3
         
-        self.rnn = nn.LSTM(input_size=self.input_size, hidden_size=self.hidden_size)
+        self.rnn = nn.LSTM(
+            input_size=self.input_size + self.predict_size, 
+            hidden_size=self.hidden_size
+        )
         
         self.predictor = nn.Sequential(
             nn.Linear(self.hidden_size + self.input_size, self.hidden_size),
@@ -64,7 +67,8 @@ class RNN(nn.Module):
             )
         else:
             x_len = x_len.cpu()
-            packed_seq = pack_padded_sequence(x, x_len, enforce_sorted=False)
+            rnn_input = torch.concat((x, y), dim=-1)
+            packed_seq = pack_padded_sequence(rnn_input, x_len, enforce_sorted=False)
             rnn_out, (h_n, c_n) = self.rnn(packed_seq)
             rnn_out, _ = pad_packed_sequence(rnn_out)
             # rnn_out: (seq_len, batch_size, hidden_size)

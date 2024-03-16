@@ -56,18 +56,22 @@ def content_feature(content):
     ], dtype=np.float32)
 
 
-def extract_features(dataset: pd.DataFrame, user_features: dict[str, np.ndarray]) -> np.ndarray:
+def extract_features(dataset: pd.DataFrame, user_features: dict[str, np.ndarray] | None = None) -> np.ndarray:
 
     dataset['feature_datetime'] = dataset['time'].apply(datetime_feature)
 
     # 用户特征
-    dataset['feature_user'] = dataset['uid'].apply(lambda u: user_features[u])
+    if user_features is not None:
+        dataset['feature_user'] = dataset['uid'].apply(lambda u: user_features[u])
 
     dataset['feature_content'] = dataset['content'].apply(content_feature)
     # 文本特征
 
     # 输出特征可以用 feature_columns 控制
-    feature_columns = ['feature_datetime', 'feature_user', 'feature_content']
+    # feature_columns = ['feature_content', 'feature_datetime', 'feature_user']
+    feature_columns = ['feature_content', 'feature_datetime']
+    if user_features is not None:
+        feature_columns.append('feature_user')
 
     feature_array = []  # 拼接 array (num_samples, feature_dim)
     for col in feature_columns:

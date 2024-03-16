@@ -62,7 +62,7 @@ class Trainer:
         # Train
         for epoch in range(1, self.args.epochs + 1):
             progress_bar = tqdm(range(len(train_dataloader)), desc=f'Epoch {epoch}', disable=False)
-            epoch_start_time = time.perf_counter()
+            # epoch_start_time = time.perf_counter()
             self.model.train()
             for x, x_len, y in train_dataloader:
                 x = x.to(self.args.device)
@@ -81,7 +81,7 @@ class Trainer:
             progress_bar.close()
 
             # dev_f1, dev_loss = self.evaluate()
-            epoch_time_cost = time.perf_counter() - epoch_start_time
+            # epoch_time_cost = time.perf_counter() - epoch_start_time
         #     logger.info(f'Epoch {epoch}, training_time: {epoch_time_cost:.2f}')
         #     if best_dev_f1 is None or dev_f1 > best_dev_f1:
         #         best_dev_f1 = dev_f1

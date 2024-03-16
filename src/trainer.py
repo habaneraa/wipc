@@ -52,6 +52,9 @@ class Trainer:
 
         self.model.to(self.args.device)
 
+        self.logging_steps = 10
+        self.train_history = []
+
     def train(self):
         logger.debug(self.model)
 
@@ -64,7 +67,7 @@ class Trainer:
             progress_bar = tqdm(range(len(train_dataloader)), desc=f'Epoch {epoch}', disable=False)
             # epoch_start_time = time.perf_counter()
             self.model.train()
-            for x, x_len, y in train_dataloader:
+            for step, (x, x_len, y) in enumerate(train_dataloader):
                 x = x.to(self.args.device)
                 y = y.to(self.args.device)
                 self.model.zero_grad()
@@ -77,6 +80,10 @@ class Trainer:
                     'lr': round(self.scheduler.get_last_lr()[0], 6)
                 })
                 progress_bar.update(1)
+
+                if step % self.logging_steps == 0:
+                    self.train_history.append({'loss': outputs.loss.item(), 'lr': self.scheduler.get_last_lr()[0]})
+
             self.scheduler.step()
             progress_bar.close()
 

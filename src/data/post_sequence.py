@@ -1,6 +1,8 @@
 
 from typing import Literal, List, Dict
 import pandas as pd
+import numpy as np
+from loguru import logger
 import torch
 from torch import Tensor
 from torch.utils.data import Dataset
@@ -20,11 +22,14 @@ def build_user_historical_sequences(dataset: pd.DataFrame, threshold: int = 256)
     #                             if len(group) <= threshold}
     user_dataframes_sorted = {uid: group.sort_values(by='time') 
                                 for uid, group in dataset.groupby('uid')}
+    logger.info(f'Num users: {len(user_dataframes_sorted)}')
     data = []
     for uid, group in user_dataframes_sorted.items():
         group = group.tail(threshold) # 截断最新的 N 条博文
         x_targets = extract_targets(group, 'log')
         x_len = len(group)
+        if np.sum(x_targets) < 1:
+            continue
         x_len_tensor = torch.tensor(x_len).unsqueeze(0)
         feature_content = group['feature_content']
         feature_time = group['feature_datetime']

@@ -45,6 +45,7 @@ def process_raw_dataset():
     # 划分验证集
     split_time = pd.to_datetime('2015-07-01 00:00:00')
     valid_raw = train_raw[train_raw['time'] > split_time]
+    all_train_raw = train_raw
     train_raw = train_raw[train_raw['time'] < split_time]
 
-    return {'train': train_raw, 'valid': valid_raw, 'test': test_raw, 'all_uid': all_users}
+    return {'train': train_raw, 'valid': valid_raw, 'all_train': all_train_raw, 'test': test_raw, 'all_uid': all_users}

@@ -24,7 +24,11 @@ class RNN(nn.Module):
         self.hidden_size = hidden_size # 隐藏维数
         self.predict_size = 3
         
-        self.rnn = nn.LSTM(
+        # self.rnn = nn.LSTM(
+        #     input_size=self.input_size + self.predict_size, 
+        #     hidden_size=self.hidden_size
+        # )
+        self.rnn = nn.RNN(
             input_size=self.input_size + self.predict_size, 
             hidden_size=self.hidden_size
         )
@@ -35,7 +39,8 @@ class RNN(nn.Module):
             nn.Linear(self.hidden_size, self.predict_size),
         )
 
-        self.loss_fn = nn.MSELoss()
+        # self.loss_fn = nn.MSELoss()
+        self.loss_fn = nn.L1Loss()
 
     def forward(
         self, 
@@ -69,7 +74,8 @@ class RNN(nn.Module):
             x_len = x_len.cpu()
             rnn_input = torch.concat((x, y), dim=-1)
             packed_seq = pack_padded_sequence(rnn_input, x_len, enforce_sorted=False)
-            rnn_out, (h_n, c_n) = self.rnn(packed_seq)
+            # rnn_out, (h_n, c_n) = self.rnn(packed_seq)
+            rnn_out, h_n = self.rnn(packed_seq)
             rnn_out, _ = pad_packed_sequence(rnn_out)
             # rnn_out: (seq_len, batch_size, hidden_size)
             # h_n: (1, batch_size, hidden_size)

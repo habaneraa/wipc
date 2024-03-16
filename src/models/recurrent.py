@@ -14,6 +14,21 @@ class ModelOutput:
     logits: Optional[torch.FloatTensor] = None
 
 
+def my_loss_function(logits: torch.FloatTensor, x_len: torch.LongTensor, targets: torch.FloatTensor):
+    # (seq_len, batch_size, 3)
+    logits = torch.exp(logits)
+
+    error = torch.abs(logits - targets) / (targets + 3)
+    error[:, :, 1] *= 2
+    error /= 4
+    
+    # 计算损失时，我们需要创建一个掩码来忽略填充元素
+    mask = torch.arange(logits.size(0))[:, None] < x_len[None, :]
+    mask = mask.to(logits.device)  # 确保掩码在正确的设备上
+
+    return torch.sum(error * mask.unsqueeze(-1)) / torch.sum(x_len)
+
+
 class RNN(nn.Module):
     """用于时间序列预测的 RNN 模型"""
 
@@ -40,7 +55,7 @@ class RNN(nn.Module):
         )
 
         # self.loss_fn = nn.MSELoss()
-        self.loss_fn = nn.L1Loss()
+        # self.loss_fn = nn.L1Loss()
 
     def forward(
         self, 
@@ -84,10 +99,8 @@ class RNN(nn.Module):
             rnn_out_previous[0].zero_()
             logits = self.predictor(torch.concat((x, rnn_out_previous), -1))
 
-            # 计算损失时，我们需要创建一个掩码来忽略填充元素
-            mask = torch.arange(logits.size(0))[:, None] < x_len[None, :]
-            mask = mask.to(logits.device)  # 确保掩码在正确的设备上
-            loss = self.loss_fn(logits * mask.unsqueeze(-1), y * mask.unsqueeze(-1))
+            loss = my_loss_function(logits, x_len, y)
+            # loss = self.loss_fn(logits * mask.unsqueeze(-1), y * mask.unsqueeze(-1))
 
             return ModelOutput(
                 loss=loss,

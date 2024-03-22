@@ -28,8 +28,6 @@ def build_user_historical_sequences(dataset: pd.DataFrame, threshold: int = 256)
         group = group.tail(threshold) # 截断最新的 N 条博文
         x_targets = extract_targets(group, 'log')
         x_len = len(group)
-        if np.sum(x_targets) < 1:
-            continue
         x_len_tensor = torch.tensor(x_len).unsqueeze(0)
         feature_content = group['feature_content']
         feature_time = group['feature_datetime']

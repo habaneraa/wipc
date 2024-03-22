@@ -28,7 +28,8 @@ def main() -> None:
     # results['test'] = model.encode(test_text, batch_size=4, show_progress_bar=True)
 
     column_to_keep = ['mid', 'content']
-    train_df, test_df = data['all_train'][column_to_keep], data['test'][column_to_keep]
+    train_df: pd.DataFrame = data['all_train'][column_to_keep]
+    test_df: pd.DataFrame = data['test'][column_to_keep]
     all_contents = pd.concat([train_df, test_df], ignore_index=True)
     all_contents['content'] = all_contents['content'].apply(process_text)
     embeddings = model.encode(all_contents['content'].to_list(), batch_size=4, show_progress_bar=True)

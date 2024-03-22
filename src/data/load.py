@@ -31,7 +31,7 @@ def process_raw_dataset():
                             quotechar=None, quoting=csv.QUOTE_NONE)
     
     # 删除 mid 列
-    train_raw = train_raw.drop(['mid'], axis=1)
+    # train_raw = train_raw.drop(['mid'], axis=1)
 
     # 转换数据类型
     train_raw['time'] = pd.to_datetime(train_raw['time'])

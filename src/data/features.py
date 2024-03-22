@@ -56,7 +56,7 @@ def content_feature(content):
     ], dtype=np.float32)
 
 
-def extract_features(dataset: pd.DataFrame, user_features: dict[str, np.ndarray] | None = None) -> np.ndarray:
+def extract_features(dataset: pd.DataFrame, user_features: dict[str, np.ndarray] = None) -> np.ndarray:
 
     dataset['feature_datetime'] = dataset['time'].apply(datetime_feature)
 

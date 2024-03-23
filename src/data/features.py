@@ -1,4 +1,4 @@
-"""feature engineering for weibo interaction prediction"""
+
 import re
 from tqdm import tqdm
 import pandas as pd
@@ -14,6 +14,7 @@ cluster_labels_path = './data/all_contents_with_labels.csv'
 
 
 class FeatureExtraction:
+    """Feature engineering"""
 
     user_features: dict[str, np.ndarray] = {}
     cluster_labels_df: pd.DataFrame = pd.read_csv(cluster_labels_path)
@@ -51,6 +52,7 @@ class FeatureExtraction:
         return np.array([
             np.cos(2 * np.pi * w), np.sin(2 * np.pi * w),
             np.cos(2 * np.pi * t), np.sin(2 * np.pi * t),
+            1.0 if dt.day_of_week >= 5 else 0.0  # 是否为周末
         ])
 
     @staticmethod

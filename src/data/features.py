@@ -10,7 +10,7 @@ topic_pattern = re.compile(r'#.+#')
 reference_pattern = re.compile(r'【.+】')
 url_pattern = re.compile(r'[a-zA-z]+://[^\s]*')
 keywords = ["http", "红包", "分享", "打车", "cn", "微博", "##", "@", "【", "代金卷", "2015"]
-cluster_labels_path = './data/all_contents_with_labels.csv'
+cluster_labels_path = './data/all_contents_with_labels_c32.csv'
 
 
 class FeatureExtraction:

@@ -1,0 +1,10 @@
+ipykernel
+matplotlib
+numpy
+pandas
+pandas-stubs
+tqdm
+types-pytz
+scikit-learn
+scipy
+xgboost

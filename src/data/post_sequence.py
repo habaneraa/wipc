@@ -8,14 +8,14 @@ from torch import Tensor
 from torch.utils.data import Dataset
 
 from .process import extract_targets
-from .features import datetime_feature, content_feature
+from .features import FeatureExtraction
 
 
 def build_user_historical_sequences(dataset: pd.DataFrame, threshold: int = 256) -> list[dict[str, Tensor]]:
 
-    dataset['feature_datetime'] = dataset['time'].apply(datetime_feature)
+    dataset['feature_datetime'] = dataset['time'].apply(FeatureExtraction.datetime_feature)
 
-    dataset['feature_content'] = dataset['content'].apply(content_feature)
+    dataset['feature_content'] = dataset['content'].apply(FeatureExtraction.content_feature)
 
     # user_dataframes_sorted = {uid: group.sort_values(by='time') 
     #                             for uid, group in dataset.groupby('uid') 

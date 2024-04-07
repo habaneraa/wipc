@@ -29,19 +29,45 @@
 验证集划分
 - 将训练集中 7 月份发表的博文留出，作为验证集，总计 184,937 条
 
+## Data Analysis & Visualization
 
-## 数据可视化
+1 - Distribution of post engagements
 
-1. [散点图+线图] 互动数量分布，对数坐标，累积图
-2. [矩阵或热力图] 3 个数值列，线性相关性系数
-3. 用户统计
-   1. [散点图] 每个用户累加的互动数量
-   2. [柱状图] 每个用户的发帖数量
-   3. [热力图] 用户发帖的平均点赞、平均转发、平均评论、发帖量，之间的相关性系数
-4. 时间分析
-   1. [折线图或曲线图] time of day 发帖量
-   2. [折线图或柱状图] day of week 发帖量
-5. 文本内容
-   1. [柱状图] 文本长度分布 按字符 按单词
-   2. 高频词 ?
-   3. 自动聚类 ?
+- "Engagements" represent likes, forwards, or comments
+- Engagement metrics refer to the number of likes, shares, and comments on a post.
+- `xxx_value_counts` chart:
+  - The data point (x, y) indicates that there are y posts **receiving** x likes/forwards/comments.
+- `cumulative_xxx_value_percent` chart:
+  - The data point (x, y) indicates that there are y percent of posts receiving **over** x likes/forwards/comments.
+
+2 - Correlations among post engagement metrics
+
+- We calculated the **linear correlation coefficients**.
+- Any pair of engagement metrics shows a positive correlation, which is in line with intuition.
+- The coefficients of around 0.6 suggests *moderately* positive linear relationships.
+- Using one metric to predict others may not be accurate enough.
+
+3 - User statistics and distributions
+
+- `num_posts_of_users_counts` chart:
+  - The data point (x, y) represents that there are y users who have published x blog posts in the past.
+- `cumulative_num_posts` chart:
+  - There are y percent of users who have published more than x blog posts in the past.
+- `user_mean_xxx_value_counts` & `cumulative_user_mean_xxx_value_percent` charts:
+  - The data point (x, y) indicates that there are y percent of users receiving **over** x likes/forwards/comments on average.
+- `user_engagement_corr` matrix:
+  - For each user, we describe the mean value of likes/forwards/comments, as well as the number of posts.
+  - We calculated the **linear correlation coefficients** among the 4 metrics.
+  - "Number of Posts" almost has no linear correlation with other engagement metrics.
+  - The correlation between average likes and average comments is strongly positive.
+  - These coefficients may be affected by the data sparsity.
+
+4 - The time of posting
+
+- We have counted the number of posts at different times of the day. Hour 1st to hour 24th.
+- We have counted the number of posts on different days of the week. Monday to Sunday.
+
+5 - Text contents of posts
+
+- We have cleaned the text contents by removing all URL links.
+- We count the length of text contents by *characters*.
